@@ -132,3 +132,7 @@ using scalar_delta_base =
               delta_t,
               num_t>
 ```
+
+### Dependencies
+
+The only dependency for the `affine_space.h` header is a compiler with C++20 support. The tests require the [Catch2](https://github.com/catchorg/Catch2) unit testing framework. As of 9th January 2022, `affine_space` passes all tests with `g++-10.3.0`, `g++-11.1.0` and `clang++-10.0.0` compilers.
