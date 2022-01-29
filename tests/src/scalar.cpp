@@ -10,162 +10,141 @@
 
    constexpr static auto eps = std::numeric_limits<value_type>::epsilon();
 
-   TEST_CASE( "scalar point in-place addition", "[scalar][point]" )
+   TEST_CASE( "scalar in-place arithmetic", "[scalar][point][delta]" )
   {
-      constexpr value_type pval{1};
-      constexpr value_type dval{2};
-      point p{{pval}};
-
-      p+=delta{{dval}};
-
-      REQUIRE( p.element == Approx( pval+dval ).epsilon( eps ) );
-  }
-
-   TEST_CASE( "scalar point in-place subtraction", "[scalar][point]" )
-  {
-      constexpr value_type pval{3};
-      constexpr value_type dval{4};
-      point p{{pval}};
-
-      p-=delta{{dval}};
-
-      REQUIRE( p.element == Approx( pval-dval ).epsilon( eps ) );
-  }
-
-   TEST_CASE( "scalar delta in-place addition", "[scalar][delta]" )
-  {
-      constexpr value_type dval0{1};
-      constexpr value_type dval1{2};
-      delta d{{dval0}};
-
-      d+=delta{{dval1}};
-
-      REQUIRE( d.element == Approx( dval0+dval1 ).epsilon( eps ) );
-  }
-
-   TEST_CASE( "scalar delta in-place subtraction", "[scalar][delta]" )
-  {
+      constexpr value_type pval{2};
       constexpr value_type dval0{3};
       constexpr value_type dval1{4};
-      point d{{dval0}};
+      constexpr value_type coeff{5};
 
-      d-=delta{{dval1}};
+      SECTION( "scalar point in-place addition", "[scalar][point]" )
+     {
 
-      REQUIRE( d.element == Approx( dval0-dval1 ).epsilon( eps ) );
+         point p{{pval}};
+
+         p+=delta{{dval0}};
+
+         REQUIRE( p.element == Approx( pval+dval0 ).epsilon( eps ) );
+     }
+
+      SECTION( "scalar point in-place subtraction", "[scalar][point]" )
+     {
+
+         point p{{pval}};
+
+         p-=delta{{dval0}};
+
+         REQUIRE( p.element == Approx( pval-dval0 ).epsilon( eps ) );
+     }
+
+      SECTION( "scalar delta in-place addition", "[scalar][delta]" )
+     {
+         delta d{{dval0}};
+
+         d+=delta{{dval1}};
+
+         REQUIRE( d.element == Approx( dval0+dval1 ).epsilon( eps ) );
+     }
+
+      SECTION( "scalar delta in-place subtraction", "[scalar][delta]" )
+     {
+         delta d{{dval0}};
+
+         d-=delta{{dval1}};
+
+         REQUIRE( d.element == Approx( dval0-dval1 ).epsilon( eps ) );
+     }
+
+      SECTION( "scalar delta in-place multiplication", "[scalar][delta]" )
+     {
+         delta d{{dval0}};
+
+         d*=coeff;
+
+         REQUIRE( d.element == Approx( dval0*coeff ).epsilon( eps ) );
+     }
+
+      SECTION( "scalar delta in-place division", "[scalar][delta]" )
+     {
+         delta d{{dval0}};
+
+         d/=coeff;
+
+         REQUIRE( d.element == Approx( dval0/coeff ).epsilon( eps ) );
+     }
+
+      SECTION( "scalar delta in-place negation", "[scalar][delta]" )
+     {
+         delta d{{dval0}};
+
+         d=-d;
+
+         REQUIRE( d.element == Approx( -dval0 ).epsilon( eps ) );
+     }
   }
 
-   TEST_CASE( "scalar delta in-place multiplication", "[scalar][delta]" )
+   TEST_CASE( "scalar arithmetic", "[scalar][point][delta]" )
   {
-      constexpr value_type dval{5};
-      constexpr value_type coeff{2};
-      delta d{{dval}};
+      constexpr value_type pval0{6};
+      constexpr value_type pval1{7};
+      constexpr value_type dval0{8};
+      constexpr value_type dval1{9};
+      constexpr value_type coeff{10};
 
-      d*=coeff;
+      SECTION( "scalar point-point subtraction", "[scalar][point][delta]" )
+     {
+         const delta d = point{{pval1}}-point{{pval0}};
 
-      REQUIRE( d.element == Approx( dval*coeff ).epsilon( eps ) );
-  }
+         REQUIRE( d.element == Approx( pval1-pval0 ).epsilon( eps ) );
+     }
 
-   TEST_CASE( "scalar delta in-place division", "[scalar][delta]" )
-  {
-      constexpr value_type dval{6};
-      constexpr value_type coeff{2};
-      delta d{{dval}};
+      SECTION( "scalar point+delta addition", "[scalar][point][delta]" )
+     {
+         const point p = point{{pval0}}+delta{{dval0}};
 
-      d/=coeff;
+         REQUIRE( p.element == Approx( pval0+dval0 ).epsilon( eps ) );
+     }
 
-      REQUIRE( d.element == Approx( dval/coeff ).epsilon( eps ) );
-  }
+      SECTION( "scalar point-delta subtraction", "[scalar][point][delta]" )
+     {
+         const point p = point{{pval0}}-delta{{dval0}};
 
-   TEST_CASE( "scalar delta in-place negation", "[scalar][delta]" )
-  {
-      constexpr value_type dval{7};
-      delta d{{dval}};
+         REQUIRE( p.element == Approx( pval0-dval0 ).epsilon( eps ) );
+     }
 
-      d=-d;
+      SECTION( "scalar delta+delta addition", "[scalar][delta]" )
+     {
+         const delta d = delta{{dval0}}+delta{{dval1}};
 
-      REQUIRE( d.element == Approx( -dval ).epsilon( eps ) );
-  }
+         REQUIRE( d.element == Approx( dval0+dval1 ).epsilon( eps ) );
+     }
 
-   TEST_CASE( "scalar point-point subtraction", "[scalar][arithmetic]" )
-  {
-      constexpr value_type pval0{5};
-      constexpr value_type pval1{6};
+      SECTION( "scalar delta+delta addition", "[scalar][delta]" )
+     {
+         const delta d = delta{{dval0}}-delta{{dval1}};
 
-      const point p0{{pval0}};
-      const point p1{{pval1}};
+         REQUIRE( d.element == Approx( dval0-dval1 ).epsilon( eps ) );
+     }
 
-      const delta d = p1-p0;
+      SECTION( "scalar num*delta multiplication", "[scalar][delta]" )
+     {
+         const delta d = coeff*delta{{dval0}};
 
-      REQUIRE( d.element == Approx( pval1-pval0 ).epsilon( eps ) );
-  }
+         REQUIRE( d.element == Approx( coeff*dval0 ).epsilon( eps ) );
+     }
 
-   TEST_CASE( "scalar point+delta addition", "[scalar][arithmetic]" )
-  {
-      constexpr value_type pval{7};
-      constexpr value_type dval{8};
+      SECTION( "scalar delta*num multiplication", "[scalar][delta]" )
+     {
+         const delta d = delta{{dval0}}*coeff;
 
-      const point p = point{{pval}}+delta{{dval}};
+         REQUIRE( d.element == Approx( coeff*dval0 ).epsilon( eps ) );
+     }
 
-      REQUIRE( p.element == Approx( pval+dval ).epsilon( eps ) );
-  }
+      SECTION( "scalar delta/num division", "[scalar][delta]" )
+     {
+         const delta d = delta{{dval0}}/coeff;
 
-   TEST_CASE( "scalar point-delta subtraction", "[scalar][arithmetic]" )
-  {
-      constexpr value_type pval{9};
-      constexpr value_type dval{10};
-
-      const point p = point{{pval}}-delta{{dval}};
-
-      REQUIRE( p.element == Approx( pval-dval ).epsilon( eps ) );
-  }
-
-   TEST_CASE( "scalar delta+delta addition", "[scalar][arithmetic]" )
-  {
-      constexpr value_type dval0{11};
-      constexpr value_type dval1{12};
-
-      const delta d = delta{{dval0}}+delta{{dval1}};
-
-      REQUIRE( d.element == Approx( dval0+dval1 ).epsilon( eps ) );
-  }
-
-   TEST_CASE( "scalar delta-delta subtraction", "[scalar][arithmetic]" )
-  {
-      constexpr value_type dval0{13};
-      constexpr value_type dval1{14};
-
-      const delta d = delta{{dval0}}-delta{{dval1}};
-
-      REQUIRE( d.element == Approx( dval0-dval1 ).epsilon( eps ) );
-  }
-
-   TEST_CASE( "scalar num*delta multiplication", "[scalar][arithmetic]" )
-  {
-      constexpr value_type dval{15};
-      constexpr value_type coeff{16};
-
-      const delta d = coeff*delta{{dval}};
-
-      REQUIRE( d.element == Approx( coeff*dval ).epsilon( eps ) );
-  }
-
-   TEST_CASE( "scalar delta*num multiplication", "[scalar][arithmetic]" )
-  {
-      constexpr value_type dval{17};
-      constexpr value_type coeff{18};
-
-      const delta d = delta{{dval}}*coeff;
-
-      REQUIRE( d.element == Approx( dval*coeff ).epsilon( eps ) );
-  }
-
-   TEST_CASE( "scalar delta/num division", "[scalar][arithmetic]" )
-  {
-      constexpr value_type dval{19};
-      constexpr value_type coeff{20};
-
-      const delta d = delta{{dval}}/coeff;
-
-      REQUIRE( d.element == Approx( dval/coeff ).epsilon( eps ) );
+         REQUIRE( d.element == Approx( dval0/coeff ).epsilon( eps ) );
+     }
   }
 
