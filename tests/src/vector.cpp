@@ -19,37 +19,29 @@
       REQUIRE( delta2::size() == 2 );
   }
 
-   TEST_CASE( "vector point accessor", "[vector][point]" )
+   TEST_CASE( "vector accessors", "[vector][point][delta]" )
   {
-      constexpr value_type pval0{1};
-      constexpr value_type pval1{2};
+      constexpr value_type val0{1};
+      constexpr value_type val1{2};
 
-      point2 p0{{pval0,pval1}};
-      const point2 p1{{pval0,pval1}};
+      SECTION( "vector point accessors", "[vector][point]" )
+     {
+         const point2 p{{val0,val1}};
 
-      REQUIRE( p0[0] == Approx( pval0 ).epsilon( eps ) );
-      REQUIRE( p0[1] == Approx( pval1 ).epsilon( eps ) );
+         REQUIRE( p[0] == Approx( val0 ).epsilon( eps ) );
+         REQUIRE( p[1] == Approx( val1 ).epsilon( eps ) );
+     }
 
-      REQUIRE( p1[0] == Approx( pval0 ).epsilon( eps ) );
-      REQUIRE( p1[1] == Approx( pval1 ).epsilon( eps ) );
+      SECTION( "vector delta accessors", "[vector][point]" )
+     {
+         const delta2 d{{val0,val1}};
+
+         REQUIRE( d[0] == Approx( val0 ).epsilon( eps ) );
+         REQUIRE( d[1] == Approx( val1 ).epsilon( eps ) );
+     }
   }
 
-   TEST_CASE( "vector delta accessor", "[vector][delta]" )
-  {
-      constexpr value_type dval0{2};
-      constexpr value_type dval1{3};
-
-      delta2 d0{{dval0,dval1}};
-      const delta2 d1{{dval0,dval1}};
-
-      REQUIRE( d0[0] == Approx( dval0 ).epsilon( eps ) );
-      REQUIRE( d0[1] == Approx( dval1 ).epsilon( eps ) );
-
-      REQUIRE( d1[0] == Approx( dval0 ).epsilon( eps ) );
-      REQUIRE( d1[1] == Approx( dval1 ).epsilon( eps ) );
-  }
-
-   TEST_CASE( "vector point in-place addition", "[vector][point]" )
+   TEST_CASE( "vector in-place arithmetic", "[vector][point][delta]" )
   {
       constexpr value_type pval0{3};
       constexpr value_type pval1{4};
@@ -57,208 +49,160 @@
       constexpr value_type dval0{5};
       constexpr value_type dval1{6};
 
-      point2 p{{pval0,pval1}};
+      constexpr value_type dval2{7};
+      constexpr value_type dval3{8};
 
-      p+=delta2{{dval0,dval1}};
+      constexpr value_type coeff{9};
 
-      REQUIRE( p[0] == Approx( pval0+dval0 ).epsilon( eps ) );
-      REQUIRE( p[1] == Approx( pval1+dval1 ).epsilon( eps ) );
+      SECTION( "vector point in-place addition", "[vector][point]" )
+     {
+         point2 p{{pval0,pval1}};
+
+         p+=delta2{{dval0,dval1}};
+
+         REQUIRE( p[0] == Approx( pval0+dval0 ).epsilon( eps ) );
+         REQUIRE( p[1] == Approx( pval1+dval1 ).epsilon( eps ) );
+     }
+
+      SECTION( "vector point in-place subtraction", "[vector][point]" )
+     {
+         point2 p{{pval0,pval1}};
+
+         p-=delta2{{dval0,dval1}};
+
+         REQUIRE( p[0] == Approx( pval0-dval0 ).epsilon( eps ) );
+         REQUIRE( p[1] == Approx( pval1-dval1 ).epsilon( eps ) );
+     }
+
+      SECTION( "vector delta in-place addition", "[vector][delta]" )
+     {
+         delta2 d{{dval0,dval1}};
+
+         d+=delta2{{dval2,dval3}};
+
+         REQUIRE( d[0] == Approx( dval0+dval2 ).epsilon( eps ) );
+         REQUIRE( d[1] == Approx( dval1+dval3 ).epsilon( eps ) );
+     }
+
+      SECTION( "vector delta in-place subtraction", "[vector][delta]" )
+     {
+         delta2 d{{dval0,dval1}};
+
+         d-=delta2{{dval2,dval3}};
+
+         REQUIRE( d[0] == Approx( dval0-dval2 ).epsilon( eps ) );
+         REQUIRE( d[1] == Approx( dval1-dval3 ).epsilon( eps ) );
+     }
+
+      SECTION( "vector delta in-place multiplication", "[vector][delta]" )
+     {
+         delta2 d{{dval0,dval1}};
+
+         d*=coeff;
+
+         REQUIRE( d[0] == Approx( dval0*coeff ).epsilon( eps ) );
+         REQUIRE( d[1] == Approx( dval1*coeff ).epsilon( eps ) );
+     }
+
+      SECTION( "vector delta in-place division", "[vector][delta]" )
+     {
+         delta2 d{{dval0,dval1}};
+
+         d/=coeff;
+
+         REQUIRE( d[0] == Approx( dval0/coeff ).epsilon( eps ) );
+         REQUIRE( d[1] == Approx( dval1/coeff ).epsilon( eps ) );
+     }
+
+      SECTION( "vector delta in-place negation", "[vector][delta]" )
+     {
+         delta2 d{{dval0,dval1}};
+
+         d=-d;
+
+         REQUIRE( d[0] == Approx( -dval0 ).epsilon( eps ) );
+         REQUIRE( d[1] == Approx( -dval1 ).epsilon( eps ) );
+     }
   }
 
-   TEST_CASE( "vector point in-place subtraction", "[vector][point]" )
+   TEST_CASE( "vector arithmetic", "[vector][point][delta]" )
   {
-      constexpr value_type pval0{7};
-      constexpr value_type pval1{8};
+      constexpr value_type pval0{10};
+      constexpr value_type pval1{11};
 
-      constexpr value_type dval0{9};
-      constexpr value_type dval1{10};
+      constexpr value_type pval2{12};
+      constexpr value_type pval3{13};
 
-      point2 p{{pval0,pval1}};
+      constexpr value_type dval0{14};
+      constexpr value_type dval1{15};
 
-      p-=delta2{{dval0,dval1}};
+      constexpr value_type dval2{16};
+      constexpr value_type dval3{17};
 
-      REQUIRE( p[0] == Approx( pval0-dval0 ).epsilon( eps ) );
-      REQUIRE( p[1] == Approx( pval1-dval1 ).epsilon( eps ) );
-  }
+      constexpr value_type coeff{18};
 
-   TEST_CASE( "vector delta in-place addition", "[vector][delta]" )
-  {
-      constexpr value_type dval00{11};
-      constexpr value_type dval01{12};
+      SECTION( "vector point-point subtraction", "[vector][point][delta]" )
+     {
+         const delta2 d = point2{{pval0,pval1}}-point2{{pval2,pval3}};
 
-      constexpr value_type dval10{13};
-      constexpr value_type dval11{14};
+         REQUIRE( d[0] == Approx( pval0-pval2 ).epsilon( eps ) );
+         REQUIRE( d[1] == Approx( pval1-pval3 ).epsilon( eps ) );
+     }
 
-      delta2 d0{{dval00,dval01}};
+      SECTION( "vector point+delta addition", "[vector][point][delta]" )
+     {
+         const point2 p = point2{{pval0,pval1}}+delta2{{dval0,dval1}};
 
-      d0+=delta2{{dval10,dval11}};
+         REQUIRE( p[0] == Approx( pval0+dval0 ).epsilon( eps ) );
+         REQUIRE( p[1] == Approx( pval1+dval1 ).epsilon( eps ) );
+     }
 
-      REQUIRE( d0[0] == Approx( dval00+dval10 ).epsilon( eps ) );
-      REQUIRE( d0[1] == Approx( dval01+dval11 ).epsilon( eps ) );
-  }
+      SECTION( "vector point-delta subtraction", "[vector][point][delta]" )
+     {
+         const point2 p = point2{{pval0,pval1}}-delta2{{dval0,dval1}};
 
-   TEST_CASE( "vector delta in-place subtraction", "[vector][delta]" )
-  {
-      constexpr value_type dval00{15};
-      constexpr value_type dval01{16};
+         REQUIRE( p[0] == Approx( pval0-dval0 ).epsilon( eps ) );
+         REQUIRE( p[1] == Approx( pval1-dval1 ).epsilon( eps ) );
+     }
 
-      constexpr value_type dval10{17};
-      constexpr value_type dval11{18};
+      SECTION( "vector delta+delta addition", "[vector][delta]" )
+     {
+         const delta2 d = delta2{{dval0,dval1}}+delta2{{dval2,dval3}};
 
-      delta2 d0{{dval00,dval01}};
+         REQUIRE( d[0] == Approx( dval0+dval2 ).epsilon( eps ) );
+         REQUIRE( d[1] == Approx( dval1+dval3 ).epsilon( eps ) );
+     }
 
-      d0-=delta2{{dval10,dval11}};
+      SECTION( "vector delta-delta subtraction", "[vector][delta]" )
+     {
+         const delta2 d = delta2{{dval0,dval1}}-delta2{{dval2,dval3}};
 
-      REQUIRE( d0[0] == Approx( dval00-dval10 ).epsilon( eps ) );
-      REQUIRE( d0[1] == Approx( dval01-dval11 ).epsilon( eps ) );
-  }
+         REQUIRE( d[0] == Approx( dval0-dval2 ).epsilon( eps ) );
+         REQUIRE( d[1] == Approx( dval1-dval3 ).epsilon( eps ) );
+     }
 
-   TEST_CASE( "vector delta in-place multiplication", "[vector][delta]" )
-  {
-      constexpr value_type dval0{19};
-      constexpr value_type dval1{20};
-      constexpr value_type coeff{21};
+      SECTION( "vector num*delta multiplication", "[vector][delta]" )
+     {
+         const delta2 d = coeff*delta2{{dval0,dval1}};
 
-      delta2 d{{dval0,dval1}};
+         REQUIRE( d[0] == Approx( coeff*dval0 ).epsilon( eps ) );
+         REQUIRE( d[1] == Approx( coeff*dval1 ).epsilon( eps ) );
+     }
 
-      d*=coeff;
+      SECTION( "vector delta*num multiplication", "[vector][delta]" )
+     {
+         const delta2 d = delta2{{dval0,dval1}}*coeff;
 
-      REQUIRE( d[0] == Approx( dval0*coeff ).epsilon( eps ) );
-      REQUIRE( d[1] == Approx( dval1*coeff ).epsilon( eps ) );
-  }
+         REQUIRE( d[0] == Approx( dval0*coeff ).epsilon( eps ) );
+         REQUIRE( d[1] == Approx( dval1*coeff ).epsilon( eps ) );
+     }
 
-   TEST_CASE( "vector delta in-place division", "[vector][delta]" )
-  {
-      constexpr value_type dval0{22};
-      constexpr value_type dval1{23};
-      constexpr value_type coeff{24};
+      SECTION( "vector delta/num division", "[vector][delta]" )
+     {
+         const delta2 d = delta2{{dval0,dval1}}/coeff;
 
-      delta2 d{{dval0,dval1}};
-
-      d/=coeff;
-
-      REQUIRE( d[0] == Approx( dval0/coeff ).epsilon( eps ) );
-      REQUIRE( d[1] == Approx( dval1/coeff ).epsilon( eps ) );
-  }
-
-   TEST_CASE( "vector delta in-place negation", "[vector][delta]" )
-  {
-      constexpr value_type dval0{25};
-      constexpr value_type dval1{26};
-      delta2 d{{dval0,dval1}};
-
-      d=-d;
-
-      REQUIRE( d[0] == Approx( -dval0 ).epsilon( eps ) );
-      REQUIRE( d[1] == Approx( -dval1 ).epsilon( eps ) );
-  }
-
-   TEST_CASE( "vector point-point subtraction", "[vector][arithmetic]" )
-  {
-      constexpr value_type pval00{25};
-      constexpr value_type pval01{26};
-
-      constexpr value_type pval10{27};
-      constexpr value_type pval11{28};
-
-      const point2 p0{{pval00,pval01}};
-      const point2 p1{{pval10,pval11}};
-
-      const delta2 d = p1-p0;
-
-      REQUIRE( d[0] == Approx( pval10-pval00 ).epsilon( eps ) );
-      REQUIRE( d[1] == Approx( pval11-pval01 ).epsilon( eps ) );
-  }
-
-   TEST_CASE( "vector point+delta addition", "[vector][arithmetic]" )
-  {
-      constexpr value_type pval0{29};
-      constexpr value_type pval1{30};
-
-      constexpr value_type dval0{31};
-      constexpr value_type dval1{32};
-
-      const point2 p =  point2{{pval0,pval1}}+delta2{{dval0,dval1}};
-
-      REQUIRE( p[0] == Approx( pval0+dval0 ).epsilon( eps ) );
-      REQUIRE( p[1] == Approx( pval1+dval1 ).epsilon( eps ) );
-  }
-
-   TEST_CASE( "vector point-delta subtraction", "[vector][arithmetic]" )
-  {
-      constexpr value_type pval0{29};
-      constexpr value_type pval1{30};
-
-      constexpr value_type dval0{31};
-      constexpr value_type dval1{32};
-
-      const point2 p =  point2{{pval0,pval1}}-delta2{{dval0,dval1}};
-
-      REQUIRE( p[0] == Approx( pval0-dval0 ).epsilon( eps ) );
-      REQUIRE( p[1] == Approx( pval1-dval1 ).epsilon( eps ) );
-  }
-
-   TEST_CASE( "vector delta+delta addition", "[vector][arithmetic]" )
-  {
-      constexpr value_type dval00{33};
-      constexpr value_type dval01{34};
-
-      constexpr value_type dval10{35};
-      constexpr value_type dval11{36};
-
-      const delta2 d =  delta2{{dval00,dval01}}+delta2{{dval10,dval11}};
-
-      REQUIRE( d[0] == Approx( dval00+dval10 ).epsilon( eps ) );
-      REQUIRE( d[1] == Approx( dval01+dval11 ).epsilon( eps ) );
-  }
-
-   TEST_CASE( "vector delta-delta subtraction", "[vector][arithmetic]" )
-  {
-      constexpr value_type dval00{37};
-      constexpr value_type dval01{38};
-
-      constexpr value_type dval10{39};
-      constexpr value_type dval11{40};
-
-      const delta2 d =  delta2{{dval00,dval01}}-delta2{{dval10,dval11}};
-
-      REQUIRE( d[0] == Approx( dval00-dval10 ).epsilon( eps ) );
-      REQUIRE( d[1] == Approx( dval01-dval11 ).epsilon( eps ) );
-  }
-
-   TEST_CASE( "vector num*delta multiplication", "[vector][arithmetic]" )
-  {
-      constexpr value_type dval0{41};
-      constexpr value_type dval1{42};
-      constexpr value_type coeff{43};
-
-      const delta2 d = coeff*delta2{{dval0,dval1}};
-
-      REQUIRE( d[0] == Approx( coeff*dval0 ).epsilon( eps ) );
-      REQUIRE( d[1] == Approx( coeff*dval1 ).epsilon( eps ) );
-  }
-
-   TEST_CASE( "vector delta*num multiplication", "[vector][arithmetic]" )
-  {
-      constexpr value_type dval0{44};
-      constexpr value_type dval1{45};
-      constexpr value_type coeff{46};
-
-      const delta2 d = delta2{{dval0,dval1}}*coeff;
-
-      REQUIRE( d[0] == Approx( dval0*coeff ).epsilon( eps ) );
-      REQUIRE( d[1] == Approx( dval1*coeff ).epsilon( eps ) );
-  }
-
-   TEST_CASE( "vector delta/num division", "[vector][arithmetic]" )
-  {
-      constexpr value_type dval0{47};
-      constexpr value_type dval1{48};
-      constexpr value_type coeff{49};
-
-      const delta2 d = delta2{{dval0,dval1}}/coeff;
-
-      REQUIRE( d[0] == Approx( dval0/coeff ).epsilon( eps ) );
-      REQUIRE( d[1] == Approx( dval1/coeff ).epsilon( eps ) );
+         REQUIRE( d[0] == Approx( dval0/coeff ).epsilon( eps ) );
+         REQUIRE( d[1] == Approx( dval1/coeff ).epsilon( eps ) );
+     }
   }
 
