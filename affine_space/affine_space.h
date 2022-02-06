@@ -240,7 +240,7 @@ namespace affine
      {
          if constexpr( vector_valued )
         {
-            for( num_t& w : element ){ w*=a; }
+            for( auto& w : element ){ w*=a; }
         }
          else
         {
@@ -251,7 +251,7 @@ namespace affine
 
       constexpr delta_type& operator/=( const std::convertible_to<num_t> auto a )
      {
-         return static_cast<delta_type&>(*this)*=1/a;
+         return static_cast<delta_type&>(*this)*=num_t(1)/a;
      }
 
       [[nodiscard]]

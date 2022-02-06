@@ -1,12 +1,34 @@
 
 # pragma once
 
+/*
+ * MIT License
+ * 
+ * Copyright (c) 2022 Joshua T. Hope-Collins
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
 
-# include <array>
-# include <iostream>
-# include <concepts>
 
 /*
+ * https://github.com/JHopeCollins/affine_space
+ *
  * This header defines a base type corresponding to a member of a vector space
  *
  *    This type must both be inherited from using CRTP. Instances of the derived type will act as members of a vector space, with only the expected arithmetic operations allowed,
@@ -41,59 +63,127 @@
  *    ostream << v0  // -> // ostream << v0[0] << " " << v0[1] ... << v0[n];
  */
 
+# include <array>
+# include <iostream>
+# include <concepts>
+
+/*
+ * type acceptable as underlying precision
+ *    currently alias for floating_point
+ *    could be extended to include types with appropriate arithmetic operator overloads
+ *       e.g. complex, rational or fixed precision numbers, or simd wrapper types
+ */
+   template<typename T>
+   concept numeric =
+      std::floating_point<T>;
+
 // --------------- vector space element ---------------
 
 /*
  * base CRTP type for an element of a vector space
  */
-   template<size_t              ndim,
-            typename         derived_t,
-            std::floating_point real>
+   template<std::size_t         ndim,
+            typename       derived_t,
+            numeric num_t>
    struct vector_space_base
   {
-      using value_type = real;
-      constexpr static size_t N=ndim;
-      std::array<real,N> elems;
+      constexpr static bool vector_valued = (ndim>0);
+
+      using element_type =
+         std::conditional_t<
+            vector_valued,
+            std::array<num_t,ndim>,
+            num_t>;
+
+      using value_type = num_t;
+      element_type element;
+
+      [[nodiscard]]
+      constexpr static std::size_t size() requires vector_valued { return ndim; }
 
    // accessors
-            real& operator[]( const size_t i )       { return elems[i]; }
-      const real& operator[]( const size_t i ) const { return elems[i]; }
+      [[nodiscard]] constexpr       value_type& operator[]( const std::size_t i )       requires vector_valued { return element[i]; }
+      [[nodiscard]] constexpr const value_type& operator[]( const std::size_t i ) const requires vector_valued { return element[i]; }
 
    // in-place arithmetic
       derived_t& operator+=( const derived_t& other )
      {
-         for( size_t i=0; i<N; ++i ){ elems[i]+=other[i]; }
+         if constexpr( vector_valued )
+        {
+            for( std::size_t i=0; i<ndim; ++i ){ elems[i]+=other[i]; }
+        }
+         else
+        {
+            element+=other.element;
+        }
          return static_cast<derived_t&>(*this);
      }
 
       derived_t& operator-=( const derived_t& other )
      {
-         for( size_t i=0; i<N; ++i ){ elems[i]-=other[i]; }
+         if constexpr( vector_valued )
+        {
+            for( std::size_t i=0; i<N; ++i ){ elems[i]-=other[i]; }
+        }
+         else
+        {
+            element-=other.element;
+        }
          return static_cast<derived_t&>(*this);
      }
 
-      derived_t& operator*=( const std::convertible_to<real> auto a )
+      derived_t& operator*=( const std::convertible_to<num_t> auto a )
      {
-         for( real& w : elems ){ w*=a; }
+         if constexpr( vector_valued )
+        {
+            for( auto& w : elems ){ w*=a; }
+        }
+         else
+        {
+            element*=a;
+        }
          return static_cast<derived_t&>(*this);
      }
 
-      derived_t& operator/=( const std::convertible_to<real> auto a )
+      derived_t& operator/=( const std::convertible_to<num_t> auto a )
      {
-         const auto a1=1./a;
-         for( real& w : elems ){ w*=a1; }
-         return static_cast<derived_t&>(*this);
+         return static_cast<derived_t&>(*this)*=(num_t(1)/a);
+     }
+
+      [[nodiscard]]
+      constexpr derived_t operator-()
+     {
+         if constexpr( vector_valued )
+        {
+            derived_t result(static_cast<const derived_t&>(*this));
+            for( auto& x : result.element ){ x=-x; }
+            return result;
+        }
+         else
+        {
+            return {{-element}};
+        }
      }
   };
+
+/*
+ * type aliases for scalar (0D) vector spaces
+ */
+   template<typename derived_t
+            numeric      num_t>
+   using scalar_vector_base =
+      vector_space_base<0,
+                        derived_t,
+                        num_t>;
 
 // --------------- Vector arithmetic ---------------
 
    // v = v+v
-   template<size_t              ndim,
-            typename         derived_t,
-            std::floating_point real>
-   derived_t operator+( const vector_space_base<ndim,derived_t,real>& lhs,
-                      const vector_space_base<ndim,derived_t,real>& rhs )
+   template<size_t        ndim,
+            typename derived_t,
+            numeric      num_t>
+   derived_t operator+( const vector_space_base<ndim,derived_t,num_t>& lhs,
+                        const vector_space_base<ndim,derived_t,num_t>& rhs )
   {
       derived_t result(static_cast<const derived_t&>(lhs));
       result+=static_cast<const derived_t&>(rhs);
@@ -101,11 +191,11 @@
   }
 
    // v = v-v
-   template<size_t              ndim,
-            typename         derived_t,
-            std::floating_point real>
-   derived_t operator-( const vector_space_base<ndim,derived_t,real>& lhs,
-                      const vector_space_base<ndim,derived_t,real>& rhs )
+   template<size_t       ndim,
+            typename derived_t,
+            numeric      num_t>
+   derived_t operator-( const vector_space_base<ndim,derived_t,num_t>& lhs,
+                        const vector_space_base<ndim,derived_t,num_t>& rhs )
   {
       derived_t result(static_cast<const derived_t&>(lhs));
       result-=static_cast<const derived_t&>(rhs);
@@ -113,11 +203,11 @@
   }
 
    // v = a*v
-   template<size_t              ndim,
-            typename         derived_t,
-            std::floating_point real>
-   derived_t operator*( const std::convertible_to<real> auto a,
-                      const vector_space_base<ndim,derived_t,real>& rhs )
+   template<size_t       ndim,
+            typename derived_t,
+            numeric      num_t>
+   derived_t operator*( const std::convertible_to<num_t> auto a,
+                        const vector_space_base<ndim,derived_t,num_t>& rhs )
   {
       derived_t result(static_cast<const derived_t&>(rhs));
       result*=a;
@@ -125,11 +215,11 @@
   }
 
    // v = v*a
-   template<size_t              ndim,
-            typename         derived_t,
-            std::floating_point real>
-   derived_t operator*( const vector_space_base<ndim,derived_t,real>& lhs,
-                      const std::convertible_to<real> auto a )
+   template<size_t       ndim,
+            typename derived_t,
+            numeric      num_t>
+   derived_t operator*( const vector_space_base<ndim,derived_t,num_t>& lhs,
+                        const std::convertible_to<num_t> auto a )
   {
       derived_t result(static_cast<const derived_t&>(lhs));
       result*=a;
@@ -137,47 +227,14 @@
   }
 
    // v = v/a
-   template<size_t              ndim,
-            typename         derived_t,
-            std::floating_point real>
-   derived_t operator/( const vector_space_base<ndim,derived_t,real>& lhs,
-                      const std::convertible_to<real> auto a )
+   template<size_t       ndim,
+            typename derived_t,
+            numeric      num_t>
+   derived_t operator/( const vector_space_base<ndim,derived_t,num_t>& lhs,
+                        const std::convertible_to<num_t> auto a )
   {
       derived_t result(static_cast<const derived_t&>(lhs));
-      result*=1./a;
+      result/=a;
       return result;
-  }
-
-
-// --------------- Printing to stream ---------------
-
-/*
- * send each element of Vector to stream, seperated by a single space
- */
-   template<size_t              ndim,
-            typename         derived_t,
-            std::floating_point real>
-   std::ostream& operator<<(       std::ostream& os,
-                             const vector_space_base<ndim,derived_t,real>& v )
-  {
-      for( size_t i=0; i<ndim-1; i++ )
-     {
-         os << v[i] << " ";
-     }
-      os << v[ndim-1];
-      return os;
-  }
-
-/*
- * read each element of Vector from stream
- */
-   template<size_t              ndim,
-            typename         derived_t,
-            std::floating_point real>
-   std::istream& operator>>( std::istream& is,
-                             vector_space_base<ndim,derived_t,real>& v )
-  {
-      for( auto& elem : v.elems ){ is >> elem; }
-      return is;
   }
 
