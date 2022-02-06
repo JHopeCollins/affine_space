@@ -25,6 +25,7 @@
  * SOFTWARE.
  */
 
+
 /*
  * https://github.com/JHopeCollins/affine_space
  *
@@ -235,7 +236,7 @@ namespace affine
          return static_cast<delta_type&>(*this);
      }
 
-      constexpr delta_type& operator*=( const std::floating_point auto a )
+      constexpr delta_type& operator*=( const std::convertible_to<num_t> auto a )
      {
          if constexpr( vector_valued )
         {
@@ -248,7 +249,7 @@ namespace affine
          return static_cast<delta_type&>(*this);
      }
 
-      constexpr delta_type& operator/=( const std::floating_point auto a )
+      constexpr delta_type& operator/=( const std::convertible_to<num_t> auto a )
      {
          return static_cast<delta_type&>(*this)*=1/a;
      }
@@ -379,7 +380,7 @@ namespace affine
             typename delta_t,
             numeric    num_t>
    [[nodiscard]]
-   constexpr delta_t operator*( const std::floating_point auto a,
+   constexpr delta_t operator*( const std::convertible_to<num_t> auto a,
                                 const delta_base<ndim,point_t,delta_t,num_t>& d )
   {
       delta_t result(static_cast<const delta_t&>(d));
@@ -394,7 +395,7 @@ namespace affine
             numeric    num_t>
    [[nodiscard]]
    constexpr delta_t operator*( const delta_base<ndim,point_t,delta_t,num_t>& d,
-                                const std::floating_point auto a )
+                                const std::convertible_to<num_t> auto a )
   {
       return a*d;
   }
@@ -406,7 +407,7 @@ namespace affine
             numeric    num_t>
    [[nodiscard]]
    constexpr delta_t operator/( const delta_base<ndim,point_t,delta_t,num_t>& d,
-                                const std::floating_point auto a )
+                                const std::convertible_to<num_t> auto a )
   {
       delta_t result(static_cast<const delta_t&>(d));
       result/=a;
