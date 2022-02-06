@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<todo version="0.1.20">
+    <note priority="high" time="1644163583">
+        tests for vector space
+        <note priority="high" time="1644163678">
+            vector tests
+        </note>
+        <note priority="high" time="1644163688">
+            scalar tests
+        </note>
+    </note>
+    <note priority="medium" time="1644163561">
+        common namespace for affine and vector space
+    </note>
+    <note priority="medium" time="1644163713">
+        update readme
+        <note priority="medium" time="1644163736">
+            intro section covering vector and affine spaces
+        </note>
+        <note priority="medium" time="1644163747">
+            vector space section
+        </note>
+        <note priority="medium" time="1644163754">
+            affine space section
+        </note>
+    </note>
+</todo>
