@@ -221,9 +221,7 @@
    derived_t operator*( const vector_space_base<ndim,derived_t,num_t>& lhs,
                         const std::convertible_to<num_t> auto a )
   {
-      derived_t result(static_cast<const derived_t&>(lhs));
-      result*=a;
-      return result;
+      return a*lhs;
   }
 
    // v = v/a
