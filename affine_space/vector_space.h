@@ -64,8 +64,8 @@
  */
 
 # include <array>
-# include <iostream>
 # include <concepts>
+# include <type_traits>
 
 /*
  * type acceptable as underlying precision
